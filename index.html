@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rage Keyboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+
+            background: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+
+        a{
+           margin-top: 10px;
+            margin-left: 5%;
+        }
+
+        .title {
+            text-align: center;
+            margin: 20px auto;
+        }
+
+        .title h2 {
+            margin-bottom: 10px;
+        }
+
+        .title p {
+            margin: 0;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: red;
+            margin: 20px;
+        }
+
+        .container {
+            height: 70%;
+            width: 70%;
+            margin-left: 15%;
+            border: 2px solid black;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, .08);
+            backdrop-filter: blur(8px);
+            box-shadow: 5px 10px 30px rgba(0, 0, 0, .8);
+
+        }
+
+        .title {
+            height: auto;
+            width: 80%;
+
+        }
+
+
+        .paragraph {
+            display: block;
+            height: auto;
+            padding: 5%;
+
+        }
+
+        .typing-field p {
+            margin-left: 10%;
+        }
+
+        #box {
+            width: 80%;
+            min-height: 60px;
+            padding: 10px;
+            margin-left: 9%;
+            background: white;
+            border: 2px solid black;
+            border-radius: 10px;
+            font-size: 20px;
+            font-family: monospace;
+            outline: none;
+            white-space: pre-wrap;
+            word-break: break-word;
+            box-shadow: 5px 10px 30px rgba(0, 0, 0, .8);
+        }
+
+        .char {
+            display: inline-block;
+        }
+
+        .fall {
+            position: absolute;
+            font-size: 30px;
+            color: rgb(0, 0, 0);
+            font-family:monospace;
+            pointer-events: none;
+            animation: fall 2s linear forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(500px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+
+            display: none;
+
+            justify-content: center;
+            align-items: center;
+
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+
+            animation: popup 0.4s ease;
+        }
+
+        .popup-content img {
+            width: 220px;
+            margin-bottom: 15px;
+        }
+
+        .popup-content h1 {
+            color: red;
+            margin: 10px 0;
+        }
+
+        .popup-content button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-top: 15px;
+        }
+
+        @keyframes popup {
+
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+        }
+
+        .contact-info{
+            height: 10%;
+            width: 100%;
+            display: flex;
+            margin-top: 2%;
+            align-items: center;
+            justify-content: center;
+            background-color: darkgray;
+           
+        }
+    </style>
+</head>
+
+<body>
+    
+    <div class="title">
+        <h2><u>Rage keyboard</u></h2>
+        <p><b>Type below paragraph in input field under given time</b></p>
+    </div>
+
+    <div class="timer">
+        Time Left: <span id="time">02:00</span>
+    </div>
+
+    <div class="container">
+        <div class="typing-field">
+            <div class="paragraph">
+                <h3>Stimulate your mind as you test your typing speed with this standard English paragraph typing test.
+                    Watch your typing speed and accuracy increase as you learn about a variety of new topics! Over 40
+                    typing test selections available.</h3>
+            </div>
+            <p><b><u>Type here</u></b></p>
+            <div id="box" contenteditable="true"></div>
+        </div>
+    </div>
+
+    <div id="losePopup" class="popup">
+
+        <div class="popup-content">
+
+
+            <img src="ending.jpg" alt="You Lose">
+
+            <h1>You Lose!</h1>
+
+            <p>Time's Up!</p>
+
+            <button onclick="location.reload()">Play Again</button>
+
+        </div>
+
+    </div>
+
+    <div class="contact-info">
+        <a href="https://princeverma2006.netlify.app/" target="_blank">Contact</a>
+    </div>
+    <script>
+
+        // Get elements
+        const box = document.getElementById("box");
+        const timer = document.getElementById("time");
+
+        // ---------------- TIMER ----------------
+
+        // Total time = 2 minutes
+        let timeLeft = 120;
+
+        // Check if timer has started
+        let timerStarted = false;
+
+        // Store interval
+        let countdown;
+
+        // Show initial time
+        updateTimer();
+
+        function updateTimer() {
+
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+
+            timer.innerText =
+                String(minutes).padStart(2, "0") +
+                ":" +
+                String(seconds).padStart(2, "0");
+        }
+
+
+        // ------------- TYPING EVENT -------------
+
+        box.addEventListener("input", () => {
+
+            // Start timer only once
+            if (!timerStarted) {
+
+                timerStarted = true;
+
+                countdown = setInterval(() => {
+
+                    timeLeft--;
+
+                    updateTimer();
+
+                    if (timeLeft <= 0) {
+
+                        clearInterval(countdown);
+                        clearInterval(fallingLetters);
+
+                        box.contentEditable = "false";
+
+                        document.getElementById("losePopup").style.display = "flex";
+
+                    }
+
+                }, 1000);
+            }
+
+            // Save typed text
+            let text = box.innerText;
+
+            // Clear box
+            box.innerHTML = "";
+
+            // Wrap every character inside a span
+            for (let ch of text) {
+
+                let span = document.createElement("span");
+
+                span.className = "char";
+                span.innerText = ch;
+
+                box.appendChild(span);
+            }
+
+            // Keep cursor at end
+            let range = document.createRange();
+            let sel = window.getSelection();
+
+            range.selectNodeContents(box);
+            range.collapse(false);
+
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+        });
+
+
+        // ------------ FALLING LETTERS ------------
+
+        const fallingLetters = setInterval(() => {
+
+            let letters = box.querySelectorAll(".char");
+
+            if (letters.length < 5) return;
+
+            let randomIndex = Math.floor(Math.random() * letters.length);
+
+            let chosen = letters[randomIndex];
+
+            let rect = chosen.getBoundingClientRect();
+
+            let fall = document.createElement("span");
+
+            fall.className = "fall";
+            fall.innerText = chosen.innerText;
+
+            fall.style.left = rect.left + "px";
+            fall.style.top = rect.top + "px";
+
+            document.body.appendChild(fall);
+
+            // Remove original letter
+            chosen.remove();
+
+            // Remove animation after 2 seconds
+            setTimeout(() => {
+                fall.remove();
+            }, 2000);
+
+        }, 400);
+    </script>
+
+</body>
+
+</html>
